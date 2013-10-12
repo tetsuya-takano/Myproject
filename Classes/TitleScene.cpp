@@ -62,7 +62,7 @@ bool Title::init()
                                         "CloseNormal.png",
                                         "CloseSelected.png",
                                         this,
-                                        menu_selector(Title::scenechangeProgressCallback));
+                                        menu_selector(Title::scenechangeFlipAngular));
     pCloseItem[4] = CCMenuItemImage::create(
                                         "CloseNormal.png",
                                         "CloseSelected.png",
@@ -75,11 +75,13 @@ bool Title::init()
     for(int i = 0; i < 5; i++){
     	pCloseItem[i]->setPosition(ccp(origin.x + visibleSize.width/6 * (i+1),
                                     origin.y + visibleSize.height/2));
-    	pCloseItem[i]->setScale(3.0f);
+//    	pCloseItem[i]->setScale(1.0f);
 
     	pMenu->addChild(pCloseItem[i]);
     }
+    CCLayerColor *color = CCLayerColor::create(ccc4(100,100,255,100));
 
+    this->addChild(color,10);
     this->addChild(pMenu, 1);
 
     /////////////////////////////
@@ -128,7 +130,7 @@ void Title::ccTouchesEnded(cocos2d::CCSet* touches, cocos2d::CCEvent* event){
 }
 
 void Title::update(float delta){
-	CCLog("frame:%f",delta);
+
 }
 
 
@@ -147,6 +149,8 @@ void Title::menuCloseCallback(CCObject* pSender)
 void Title::scenechangeCrossFadeCallback(CCObject *pSender){
 	CCScene *next = Title::scene();
 
+	CCLog("Change:CrossFade");
+
 	CCTransitionCrossFade *change = CCTransitionCrossFade::create(0.5f,next);
 
 	CCDirector::sharedDirector()->replaceScene(change);
@@ -154,19 +158,25 @@ void Title::scenechangeCrossFadeCallback(CCObject *pSender){
 void Title::scenechangeSplitRowsCallback(CCObject *pSender){
 	CCScene *next = Title::scene();
 
+	CCLog("Change:RowsCallback");
+
 	CCTransitionSplitRows *change = CCTransitionSplitRows::create(0.5f,next);
 
 	CCDirector::sharedDirector()->replaceScene(change);
 }
-void Title::scenechangeProgressCallback(CCObject *pSender){
+void Title::scenechangeFlipAngular(CCObject *pSender){
 	CCScene *next = Title::scene();
 
-	CCTransitionProgress *change = CCTransitionProgress::create(0.5f,next);
+	CCLog("Change:FlipAngular");
+
+	CCTransitionFlipAngular *change = CCTransitionFlipAngular::create(3.0f,next);
 
 	CCDirector::sharedDirector()->replaceScene(change);
 }
 void Title::scenechangeFadeCallback(CCObject *pSender){
 	CCScene *next = Title::scene();
+
+	CCLog("Change:FadeCallback");
 
 	CCTransitionFade *change = CCTransitionFade::create(1.5f,next);
 
@@ -175,6 +185,8 @@ void Title::scenechangeFadeCallback(CCObject *pSender){
 
 void Title::scenechangeJumpZoomCallback(CCObject *pSender){
 	CCScene *next = Title::scene();
+
+	CCLog("Change:JumpZoom");
 
 	CCTransitionJumpZoom *change = CCTransitionJumpZoom::create(0.5f,next);
 

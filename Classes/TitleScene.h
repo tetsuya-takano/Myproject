@@ -20,7 +20,7 @@ public:
 
     void scenechangeCrossFadeCallback(CCObject* pSender);
     void scenechangeSplitRowsCallback(CCObject* pSender);
-    void scenechangeProgressCallback(CCObject* pSender);
+    void scenechangeFlipAngular(CCObject* pSender);
     void scenechangeFadeCallback(CCObject* pSender);
     void scenechangeJumpZoomCallback(CCObject* pSender);
 
