@@ -2,8 +2,9 @@
 #define __TITLE_SCENE_H__
 
 #include "cocos2d.h"
+using namespace cocos2d;
 
-class Title : public cocos2d::CCLayer
+class Title : public cocos2d::CCLayerGradient
 {
 public:
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
@@ -27,8 +28,14 @@ public:
     virtual void ccTouchesEnded(cocos2d::CCSet* touches, cocos2d::CCEvent* event);
     virtual void update(float delta);
 
+    void playSound(const char *filepath);
+
+private:
+    CCSprite* pSprite;
+
     // implement the "static node()" method manually
     CREATE_FUNC(Title);
+
 };
 
 #endif // __HELLOWORLD_SCENE_H__
