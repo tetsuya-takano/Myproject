@@ -3,8 +3,11 @@
 #include "GameManager.h"
 #include "../CocosDenshion/include/SimpleAudioEngine.h"
 using namespace CocosDenshion;
-
 using namespace cocos2d;
+
+typedef enum {
+	kTileMapTag = 99
+}myNodeTag;
 
 
 USING_NS_CC;
@@ -35,15 +38,23 @@ bool Title::init()
         return false;
     }
 
-    CCLayerGradient::initWithColor(ccc4(255,0,0,255),ccc4(0,0,255,100),ccp(0.0f,1.0f));
+    CCTMXTiledMap* pTiledMap = CCTMXTiledMap::create("Map/TestMap.tmx");
+    this->addChild(pTiledMap);
+    pTiledMap->setTag(kTileMapTag);
+
+    //CCLayerGradient::initWithColor(ccc4(255,0,0,255),ccc4(0,0,255,100),ccp(0.0f,1.0f));
+
     CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
     CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
 
-    setTouchEnabled(true);
+//    setTouchMode(kCCTouchesAllAtOnce);
+    this->setTouchEnabled(true);
+    this->setTouchMode(kCCTouchesOneByOne);
     CCLog("touchEnabled");
-    setKeypadEnabled(true);
+    this->setKeypadEnabled(true);
     CCLog("padEnabled");
     this->scheduleUpdate();
+
     /////////////////////////////
     // 2. add a menu item with "X" image, which is clicked to quit the program
     //    you may modify it.
@@ -127,17 +138,106 @@ bool Title::init()
     int id = GameManager::sharedInstance()->getStageId();
 
     CCLog("Get ID :: %d",id);
+/*
 
-    CCParticleExplosion* pParticle = CCParticleExplosion::createWithTotalParticles(1000);
-    this->addChild(pParticle);
+    CCLayerColor* frontLayer = CCLayerColor::create(ccc4(0,0,255,128));
+    this->addChild(frontLayer,20);
 
+    ccBlendFunc blend;
+    blend.src = GL_SRC_ALPHA;
+    blend.dst = GL_ONE;
+
+    frontLayer->setBlendFunc(blend);*/
+
+    dot = CCDrawNode::create();
+    this->addChild(dot);
     return true;
 }
-void Title::ccTouchesEnded(cocos2d::CCSet* touches, cocos2d::CCEvent* event){
+bool Title::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent){
+	mStartPos = this->convertToWorldSpace(
+			this->convertTouchToNodeSpace(pTouch));
+
+	this->scheduleUpdate();
+	CCLog("Touch Began");
+
+	CCTMXTiledMap* pTileMap
+				= (CCTMXTiledMap*)this->getChildByTag(kTileMapTag);
+
+	CCPoint pos = getTilePosition(mStartPos,pTileMap);
+
+	int id = getTileNum(pos, pTileMap,"Ground");
+
+	CCLog("Tile ID:%d",id);
+
+	return true;
+}
+void Title::ccTouchMoved(CCTouch* pTouch, CCEvent* pEvent){
+	CCPoint touchPos = this->convertToWorldSpace(
+			this->convertTouchToNodeSpace(pTouch));
+
+	mDelta = CCPoint(	mStartPos.x - touchPos.x,
+						mStartPos.y - touchPos.y);
+}
+
+void Title::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent){
+	this->unscheduleUpdate();
+	CCLog("Touch Ended");
+
+}
+
+/*
+void Title::ccTouchesBegan(CCSet *pTouches, CCEvent *pEvent){
+	CCLog("Begin");
+	CCSetIterator it;
+	CCTouch* touch;
+	for(it = pTouches->begin(); it != pTouches->end(); it++){
+			touch = (CCTouch*)(*it);
+			if(!touch){
+				break;
+			}
+
+			CCLog("TouchID:%d",touch->getID());
+	}
+}*/
+/*
+void Title::ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent){
+	CCLog("Move");
 
 	CCSetIterator it;
 	CCTouch* touch;
-	CCLog("Touch");
+	for(it = pTouches->begin(); it != pTouches->end(); it++){
+			touch = (CCTouch*)(*it);
+			if(!touch){
+				break;
+			}
+			if(touch->getID() == 0){
+				dot->drawDot(touch->getLocation(),1,ccc4f(1,1,1,1));
+
+			}
+	}
+
+}
+*/
+/*
+void Title::ccTouchesEnded(CCSet* pTouches, CCEvent* pEvent){
+	CCLog("End");
+
+	CCSetIterator it;
+	CCTouch* touch;
+	for(it = pTouches->begin(); it != pTouches->end(); it++){
+			touch = (CCTouch*)(*it);
+			if(!touch){
+				break;
+			}
+
+			CCLog("TouchID:%d",touch->getID());
+			if(touch->getID() == 0){
+				dot->clear();
+			}
+	}
+
+	CCSetIterator it;
+	CCTouch* touch;
 	for(it = touches->begin(); it != touches->end(); it++){
 			touch = (CCTouch*)(*it);
 			if(!touch){
@@ -159,13 +259,67 @@ void Title::ccTouchesEnded(cocos2d::CCSet* touches, cocos2d::CCEvent* event){
 
 			CCLog("touchEnded = {%f,%f}",location.x,location.y);
 	}
+
+}
+*/
+
+void Title::ccTouchesCancelled(CCSet *pTouches, CCEvent *pEvent){
+	CCLog("Cancel");
 }
 
 void Title::update(float delta){
+	CCSize size = CCDirector::sharedDirector()->getWinSize();
+	CCTMXTiledMap* pTileMap
+					= (CCTMXTiledMap*)this->getChildByTag(kTileMapTag);
 
+	CCPoint point = pTileMap->getPosition();
+	CCPoint pDelta = ccp(mDelta.x*delta,mDelta.y*delta);
+
+	point = CCPoint(point.x + pDelta.x,
+					point.y + pDelta.y);
+
+	CCSize mapSize = pTileMap->getContentSize();
+	//調整
+
+ 	point.x = MAX(point.x,size.width - mapSize.width);
+	point.x = MIN(point.x,0);
+	point.y = MAX(point.y,size.height - mapSize.height);
+	point.y = MIN(point.y,0);
+
+	pTileMap->setPosition(point);
 }
 
+/*
+ * 	タイル座標とタッチ座標の調整
+ * 	point::タッチ座標
+ * 	map：：マップデータ
+ */
+CCPoint Title::getTilePosition(CCPoint point, CCTMXTiledMap* map){
 
+
+	CCPoint tilePos = ccpSub(point, map->getPosition());
+	float fTileWidth = map->getTileSize().width;
+	float fTileHeight = map->getTileSize().height;
+
+	float fTileRow = map->getMapSize().height;
+
+	tilePos.x = (int)(tilePos.x / fTileWidth);
+	tilePos.y = (int)((fTileRow * fTileHeight - tilePos.y)/fTileHeight);
+
+	return tilePos;
+}
+/*
+ *  タイル番号の取得
+ *  point::変換座標
+ *  map::マップデータ
+ */
+int	Title::getTileNum(CCPoint point, CCTMXTiledMap* map,char* layerName){
+	int num = -1;
+	CCTMXLayer* pGroundLayer = map->layerNamed(layerName);
+	num = pGroundLayer->tileGIDAt(point);
+
+	return num;
+}
 void Title::menuCloseCallback(CCObject* pSender)
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT) || (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)

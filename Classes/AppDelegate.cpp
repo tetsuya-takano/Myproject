@@ -7,7 +7,9 @@ using namespace CocosDenshion;
 USING_NS_CC;
 
 AppDelegate::AppDelegate() {
-
+	CCDirector *pDirector = CCDirector::sharedDirector();
+	pDirector->setDepthTest(true);
+	pDirector->setProjection(kCCDirectorProjection2D);
 }
 
 AppDelegate::~AppDelegate() 

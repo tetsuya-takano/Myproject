@@ -4,7 +4,7 @@
 #include "cocos2d.h"
 using namespace cocos2d;
 
-class Title : public cocos2d::CCLayerGradient
+class Title : public cocos2d::CCLayer
 {
 public:
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
@@ -25,7 +25,15 @@ public:
     void scenechangeFadeCallback(CCObject* pSender);
     void scenechangeJumpZoomCallback(CCObject* pSender);
 
-    virtual void ccTouchesEnded(cocos2d::CCSet* touches, cocos2d::CCEvent* event);
+//    virtual void ccTouchesBegan(CCSet *pTouches, CCEvent *pEvent);
+//    virtual void ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent);
+ //   virtual void ccTouchesEnded(CCSet *pTouches, CCEvent *pEvent);
+    virtual void ccTouchesCancelled(CCSet *pTouches, CCEvent *pEvent);
+
+    virtual bool ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent);
+    virtual void ccTouchMoved(CCTouch* pTouch, CCEvent* pEvent);
+    virtual void ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent);
+
     virtual void update(float delta);
 
     void playSound(const char *filepath);
@@ -33,6 +41,14 @@ public:
 private:
     CCSprite* pSprite;
 
+    CCDrawNode* dot;
+
+    CCPoint mStartPos;
+    CCPoint mDelta;
+
+
+    CCPoint getTilePosition(CCPoint point, CCTMXTiledMap* map);
+    int		getTileNum(CCPoint point, CCTMXTiledMap* map,char* layerName);
     // implement the "static node()" method manually
     CREATE_FUNC(Title);
 
