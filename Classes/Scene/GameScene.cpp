@@ -5,8 +5,6 @@
 #include "GameScene.h"
 #include "GameManager.h"
 
-#include "../Character/Player.h"
-
 #include "../CocosDenshion/include/SimpleAudioEngine.h"
 using namespace CocosDenshion;
 using namespace cocos2d;
@@ -45,12 +43,22 @@ bool Game::init()
     this->setTouchEnabled(true);
     this->setTouchMode(kCCTouchesOneByOne);
 
+    mTouchStartPos = ccp(100,100);
+    mTouchMovePos = ccp(100,100);
+    mPlayerDefPos = ccp(100,100);
     CCSpriteFrameCache::sharedSpriteFrameCache()->addSpriteFramesWithFile("Image/ImagePack.plist");
 
     pPlayer = (Player*)Player::create("Image/radish.png");
     pPlayer->setPositionX(100);
     pPlayer->setPositionY(100);
+    pPlayer->setAnchorPoint(CCPointMake(0.5,0.5));
 //    pPlayer->load("Image/radish.png");
+
+    pEnemy = (Enemy*)Enemy::create("Image/mushroom.png");
+    pEnemy->setPositionX(250);
+    pEnemy->setPositionY(250);
+    pEnemy->setAnchorPoint(ccp(0.5,0.5));
+
    	this->scheduleUpdate();
 
     pFont = CCLabelBMFont::create("Hello World","fonts/font.fnt",24);
@@ -75,7 +83,7 @@ bool Game::init()
 
     this->addChild(pFont);
     this->addChild(pPlayer);
-
+    this->addChild(pEnemy);
     return true;
 }
 bool Game::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent){
@@ -84,7 +92,7 @@ bool Game::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent){
 
 	mPlayerDefPos = pPlayer->getPosition();
 
-	CCSprite* add = this->getPackageSprite("AttackEffect.png");
+/*	CCSprite* add = this->getPackageSprite("AttackEffect.png");
 	add->setPosition(mTouchStartPos);
 
 #ifdef BATCH_NODE
@@ -95,7 +103,7 @@ bool Game::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent){
 	count++;
 	CCString* str = CCString::createWithFormat("%d",count);
 	pFont->setString(str->getCString());
-
+*/
 	return true;
 }
 void Game::ccTouchMoved(CCTouch* pTouch, CCEvent* pEvent){
@@ -129,6 +137,25 @@ void Game::update(float delta){
 	if(pos.y > size.height){pos.y = size.height;}
 
 	pPlayer->setPosition(pos);
+
+	CCRect plBox = pPlayer->boundingBox();
+	CCRect enBox = pEnemy->boundingBox();
+
+
+	if(enBox.intersectsRect(plBox)){
+		 if(!pEnemy->getHit()){
+			pEnemy->setHit(true);
+			CCSprite* add = this->getPackageSprite("AttackEffect.png");
+			add->setPosition(pPlayer->getPosition());
+			CCFiniteTimeAction* fade = CCFadeTo::create( 1.0f, 0);
+			add->runAction(fade);
+			this->addChild(add);
+		 }
+	}
+	else{
+		pEnemy->setHit(false);
+	}
+
 }
 
 void Game::menuCloseCallback(CCObject* pSender)

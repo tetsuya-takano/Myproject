@@ -3,6 +3,8 @@
 
 #include "cocos2d.h"
 #include "../Character/Player.h"
+#include "../Character/Enemy.h"
+
 using namespace cocos2d;
 
 class Game : public cocos2d::CCLayer
@@ -30,6 +32,8 @@ public:
     CCSprite* getPackageSprite(const char* fileName);
 private:
     Player* pPlayer;
+    Enemy*	pEnemy;
+
     CCLabelBMFont* pFont;
     CCSpriteBatchNode* batchNode;
     CCDrawNode* dot;
@@ -38,6 +42,7 @@ private:
     CCPoint mTouchMovePos;
     CCPoint mDelta;
     CCPoint mPlayerDefPos;
+
 
     int count;
     // implement the "static node()" method manually
