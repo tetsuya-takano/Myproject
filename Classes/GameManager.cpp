@@ -6,7 +6,7 @@ static GameManager* s_GameManager = NULL;
 
 GameManager::GameManager() {
 	// TODO 自動生成されたコンストラクター・スタブ
-
+	stage_id = 0;
 }
 
 GameManager::~GameManager() {

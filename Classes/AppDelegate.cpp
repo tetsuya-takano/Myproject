@@ -1,6 +1,7 @@
 #include "AppDelegate.h"
-#include "HelloWorldScene.h"
-#include "TitleScene.h"
+#include "Scene/HelloWorldScene.h"
+#include "Scene/TitleScene.h"
+#include "Scene/GameScene.h"
 #include "../CocosDenshion/include/SimpleAudioEngine.h"
 using namespace CocosDenshion;
 
@@ -34,8 +35,10 @@ bool AppDelegate::applicationDidFinishLaunching() {
     pDirector->setAnimationInterval(1.0 / 60);
 
     // create a scene. it's an autorelease object
+
     //CCScene *pScene = HelloWorld::scene();
-    CCScene *pScene = Title::scene();
+    //CCScene *pScene = Title::scene();
+    CCScene *pScene = Game::scene();
     // run
     pDirector->runWithScene(pScene);
 
